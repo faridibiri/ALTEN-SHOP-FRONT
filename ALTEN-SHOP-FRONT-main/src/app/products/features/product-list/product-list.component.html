@@ -1,0 +1,65 @@
+<h1 class="text-center">Liste des produits</h1>
+
+<p-button label="Créer produit" (onClick)="onCreate()" class="block text-center"/>
+
+<p-dataView #dv [value]="products()" [paginator]="true" [rows]="10">
+    <ng-template pTemplate="list" let-products>
+        @for (product of products; track product) {
+            <p-card class="block mb-2">
+                <div class="flex">
+                    <div class="flex-none w-24">
+                        <img [src]="product.image" [alt]="product.name" class="w-full">
+                    </div>
+                    <div class="flex-grow px-4">
+                        <span class="font-medium text-secondary text-sm">{{ product.category }}</span>
+                        <div class="text-lg font-medium text-900 mt-2">{{ product.name }}</div>
+                        <p>{{ product.description }}</p>
+                        <div class="flex items-center mt-2">
+                            <i class="pi pi-star-fill text-yellow-500 mr-1"></i>
+                            <span>{{ product.rating }}/5</span>
+                        </div>
+                        <div class="mt-2">
+                            <span [class]="'product-badge status-' + product.inventoryStatus.toLowerCase()">
+                                {{ product.inventoryStatus }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-none w-48 text-right">
+                        <div class="text-2xl font-bold mb-2">{{ product.price }}€</div>
+                        <div class="flex gap-2 justify-end">
+                            <p-inputNumber [(ngModel)]="quantities[product.id]" 
+                                         [showButtons]="true" 
+                                         [min]="1" 
+                                         buttonLayout="horizontal"
+                                         spinnerMode="horizontal"
+                                         [inputStyle]="{width: '4rem'}"
+                                         [step]="1">
+                            </p-inputNumber>
+                            <p-button icon="pi pi-shopping-cart" 
+                                     (onClick)="addToCart(product)"
+                                     [disabled]="product.inventoryStatus === 'OUTOFSTOCK'">
+                            </p-button>
+                        </div>
+                    </div>
+                </div>
+
+                <ng-template pTemplate="footer">
+                    <div class="flex gap-3 mt-1">
+                        <p-button label="Modifier" severity="secondary" (onClick)="onUpdate(product)"/>
+                        <p-button label="Supprimer" severity="danger" (onClick)="onDelete(product)" />
+                    </div>
+                </ng-template>
+            </p-card>
+        }
+    </ng-template>
+</p-dataView>
+
+<p-dialog [(visible)]="isDialogVisible"
+    [style]="{ width: '50vw' }"
+    header="Ajout/Edition produit">
+    <app-product-form
+        [product]="editedProduct()"
+        (save)="onSave($event)"
+        (cancel)="onCancel()"
+    />
+</p-dialog>
